@@ -139,8 +139,10 @@ body{background:#eee5d0}
 .lễ{font-size:clamp(22px,6.4vw,30px)!important;letter-spacing:.06em!important}
 .fam b{font-size:clamp(12px,3.3vw,15px)}
 .card{background:rgba(251,246,236,.55);border-color:var(--line);outline-color:var(--line)}
-#cover{padding-top:34px;min-height:auto}
-.frame{aspect-ratio:2/3;width:min(84vw,380px)}
+#cover{padding-top:0;min-height:auto}
+.frame{aspect-ratio:2/3;width:100vw;max-width:none;margin:0 calc(50% - 50vw);box-shadow:none;-webkit-mask-image:linear-gradient(to bottom,#000 88%,transparent 100%);mask-image:linear-gradient(to bottom,#000 88%,transparent 100%)}
+#cover .sm{margin-top:12px!important}
+@media(min-width:700px){.frame{width:520px;margin:0 auto}}
 #open{position:fixed;inset:0;z-index:1000;background:#ead5b4;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:opacity .9s ease,visibility .9s;overflow:hidden}
 #open.gone{opacity:0;visibility:hidden}
 .o-title{width:min(92vw,520px);margin-top:7svh;display:block;position:relative;z-index:2}
