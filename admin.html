@@ -81,18 +81,15 @@ tr:last-child td{border-bottom:none}
   <div class="adm-app" id="admApp">
     <div class="adm-top">
       <div>
-        <h1>Quản trị thiệp cưới Hân &amp; Đang</h1>
+        <h1>Tạo link mời thiệp cưới Hân &amp; Đang</h1>
         <div class="adm-sub">Thứ Bảy · 27.03.2027 · Nhà Hàng Diamond Place 3</div>
       </div>
       <div class="adm-actions">
         <button class="adm-btn" id="admReload">↻ Tải lại</button>
-        <button class="adm-btn solid" id="admCsv">⬇ Xuất Excel / CSV</button>
         <a class="adm-btn" href="./">Về thiệp</a>
         <button class="adm-btn" id="admLogout">Đăng xuất</button>
       </div>
     </div>
-
-    <div class="adm-stats" id="admStats"></div>
 
     <div class="adm-invite">
       <h3>1. Tạo link thiệp mời ghi tên riêng</h3>
@@ -138,16 +135,6 @@ tr:last-child td{border-bottom:none}
       <div id="admLkBody"><div class="adm-loading">Đang tải…</div></div>
     </div>
 
-    <div class="adm-filters" id="admFilters">
-      <div class="adm-chip on" data-f="all">Tất cả phản hồi</div>
-      <div class="adm-chip" data-f="yes">Sẽ tham dự</div>
-      <div class="adm-chip" data-f="no">Không tham dự</div>
-    </div>
-
-    <div class="adm-card">
-      <div class="adm-hd">Xác nhận tham dự (RSVP) &amp; Lời chúc <span class="adm-cnt" id="admRsvpCnt"></span></div>
-      <div id="admRsvpBody"><div class="adm-loading">Đang tải…</div></div>
-    </div>
   </div>
 </div>
 
@@ -172,7 +159,7 @@ const app = initializeApp(FIREBASE_CONFIG);
 const db = getFirestore(app);
 const $ = id => document.getElementById(id);
 
-let ALL = [], LINKS = [], VIEWS = [], RSVPS = [], filt = "all";
+let LINKS = [];
 const LOCAL_KEY = "hd_saved_links_v1";
 
 function getBaseUrl() {
@@ -233,14 +220,12 @@ function showApp() {
 }
 
 async function loadAllData() {
-  $("admRsvpBody").innerHTML = '<div class="adm-loading">Đang tải dữ liệu từ Firebase…</div>';
   $("admLkBody").innerHTML = '<div class="adm-loading">Đang tải danh sách link…</div>';
   try {
     const snap = await getDocs(query(collection(db, COL), orderBy("createdAt", "desc")));
-    ALL = []; LINKS = []; VIEWS = []; RSVPS = [];
+    LINKS = [];
     snap.forEach(d => {
       const v = { id: d.id, ...d.data() };
-      ALL.push(v);
       const nt = String(v.note || "");
       if (v.type === "link" || nt.startsWith("#link ")) {
         LINKS.push({
@@ -250,15 +235,10 @@ async function loadAllData() {
           link: v.link || nt.replace(/^#link\s+/, ""),
           createdAt: v.createdAt
         });
-      } else if (v.type === "view" || nt === "#view") {
-        VIEWS.push(v);
-      } else {
-        RSVPS.push(v);
       }
     });
   } catch (err) {
     console.warn("Firebase load warning:", err);
-    RSVPS = [];
   }
   renderDashboard();
 }
@@ -278,44 +258,19 @@ function getMergedLinks() {
   return Array.from(map.values());
 }
 
-function isYes(x) {
-  const a = String(x.attend || "").toLowerCase();
-  return a === "yes" || a === "co" || a.includes("có") || a.includes("sẽ");
-}
-
 function renderDashboard() {
   const mergedLinks = getMergedLinks();
-  const going = RSVPS.filter(isYes);
-  const totalGuests = going.reduce((s, x) => s + (parseInt(x.numGuest || x.count, 10) || 1), 0);
-
-  const statHtml = (v, l, hl) => `<div class="adm-stat${hl ? " hl" : ""}"><div class="n">${v}</div><div class="l">${l}</div></div>`;
-  $("admStats").innerHTML =
-    statHtml(mergedLinks.length, "Link khách đã tạo", true) +
-    statHtml(VIEWS.length, "Lượt mở thiệp") +
-    statHtml(RSVPS.length, "Lượt phản hồi RSVP") +
-    statHtml(going.length, "Xác nhận tham dự") +
-    statHtml(totalGuests, "Tổng khách dự kiến");
-
   // Render Links Table
   $("admLkCnt").textContent = `(${mergedLinks.length} khách)`;
   if (!mergedLinks.length) {
     $("admLkBody").innerHTML = '<div class="adm-empty">Chưa có link khách mời nào. Hãy nhập tên khách ở khung phía trên và bấm Tạo link.</div>';
   } else {
-    let h = '<div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Tên bìa ngoài</th><th>Tên bên trong</th><th>Trạng thái</th><th>Link mời</th><th>Thao tác</th></tr></thead><tbody>';
+    let h = '<div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Tên bìa ngoài</th><th>Tên bên trong</th><th>Link mời</th><th>Thao tác</th></tr></thead><tbody>';
     mergedLinks.forEach((l, idx) => {
-      const normOut = (l.outName || "").trim().toLowerCase();
-      const vwCount = VIEWS.filter(v => String(v.invitedAs || v.guestName || "").trim().toLowerCase() === normOut).length;
-      const rsvpMatch = RSVPS.find(r => String(r.invitedAs || r.guestName || "").trim().toLowerCase() === normOut);
-      const statusTxt = rsvpMatch
-        ? `<span class="adm-tag ${isYes(rsvpMatch) ? "yes" : "no"}">${isYes(rsvpMatch) ? "Sẽ đến" : "Không đến"}</span>`
-        : vwCount > 0
-          ? `<span class="adm-tag lk">Đã mở (${vwCount} lần)</span>`
-          : `<span class="adm-muted">Chưa mở</span>`;
       h += `<tr>
         <td>${idx + 1}</td>
         <td><b>${esc(l.outName)}</b></td>
         <td>${esc(l.inName || l.outName)}</td>
-        <td>${statusTxt}</td>
         <td style="word-break:break-all;font-size:12px;max-width:260px"><a href="${esc(l.link)}" target="_blank" rel="noopener" style="color:var(--ink)">${esc(l.link)}</a></td>
         <td style="white-space:nowrap">
           <button class="adm-copy" data-copy="${esc(l.link)}">Sao chép</button>
@@ -341,53 +296,7 @@ function renderDashboard() {
       });
     });
   }
-
-  // Render RSVP Table
-  const filtered = RSVPS.filter(x => {
-    if (filt === "yes") return isYes(x);
-    if (filt === "no") return !isYes(x);
-    return true;
-  });
-  $("admRsvpCnt").textContent = `(${filtered.length} phản hồi)`;
-  if (!filtered.length) {
-    $("admRsvpBody").innerHTML = '<div class="adm-empty">Chưa có phản hồi RSVP / lời chúc nào.</div>';
-  } else {
-    let h2 = '<div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Khách phản hồi</th><th>Tham dự</th><th>Số khách</th><th>Lời chúc</th><th>Thời gian</th><th></th></tr></thead><tbody>';
-    filtered.forEach((x, idx) => {
-      const name = x.guestName || x.name || "Khách mời";
-      const inv = x.invitedAs || "";
-      const yes = isYes(x);
-      const cnt = yes ? (parseInt(x.numGuest || x.count, 10) || 1) : 0;
-      h2 += `<tr>
-        <td>${idx + 1}</td>
-        <td><b>${esc(name)}</b>${inv && inv !== name ? `<br><span class="adm-muted">Link mời: ${esc(inv)}</span>` : ""}</td>
-        <td><span class="adm-tag ${yes ? "yes" : "no"}">${yes ? "Có tham dự" : "Không tham dự"}</span></td>
-        <td>${yes ? cnt : "–"}</td>
-        <td style="max-width:300px;white-space:pre-wrap">${esc(x.wish || "")}</td>
-        <td class="adm-muted">${esc(fmtDate(x.createdAt))}</td>
-        <td><button class="adm-del" data-del-rsvp="${esc(x.id)}">Xoá</button></td>
-      </tr>`;
-    });
-    h2 += "</tbody></table></div>";
-    $("admRsvpBody").innerHTML = h2;
-    $("admRsvpBody").querySelectorAll("[data-del-rsvp]").forEach(b => {
-      b.addEventListener("click", async () => {
-        if (!confirm("Xoá phản hồi này vĩnh viễn?")) return;
-        try { await deleteDoc(doc(db, COL, b.getAttribute("data-del-rsvp"))); loadAllData(); }
-        catch(e) { alert("Không xoá được: " + e.message); }
-      });
-    });
-  }
 }
-
-$("admFilters").addEventListener("click", e => {
-  const c = e.target.closest(".adm-chip");
-  if (!c) return;
-  document.querySelectorAll(".adm-chip").forEach(x => x.classList.remove("on"));
-  c.classList.add("on");
-  filt = c.getAttribute("data-f");
-  renderDashboard();
-});
 
 function copyToClipboard(text, btn) {
   const old = btn ? btn.textContent : "";
@@ -484,19 +393,6 @@ $("admExportLinksCsv").addEventListener("click", () => {
   const rows = [["STT", "Tên bìa ngoài", "Tên bên trong", "Link thiệp mời"]];
   list.forEach((l, i) => rows.push([i + 1, l.outName, l.inName || l.outName, l.link]));
   downloadCsv("danh-sach-link-moi-han-dang.csv", rows);
-});
-
-$("admCsv").addEventListener("click", () => {
-  const list = getMergedLinks();
-  const rows = [["Loại", "Tên khách / Bìa ngoài", "Tên bên trong / Link mời", "Tham dự", "Số khách", "Lời chúc / Link", "Thời gian"]];
-  RSVPS.forEach(r => {
-    const yes = isYes(r);
-    rows.push(["RSVP", r.guestName || r.name || "", r.invitedAs || "", yes ? "Có tham dự" : "Không tham dự", yes ? (r.numGuest || r.count || 1) : 0, r.wish || "", fmtDate(r.createdAt)]);
-  });
-  list.forEach(l => {
-    rows.push(["Link mời", l.outName, l.inName || l.outName, "", "", l.link, fmtDate(l.createdAt)]);
-  });
-  downloadCsv("quan-tri-thiep-cuoi-han-dang.csv", rows);
 });
 
 checkAuth();
