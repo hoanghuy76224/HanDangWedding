@@ -93,16 +93,10 @@ tr:last-child td{border-bottom:none}
 
     <div class="adm-invite">
       <h3>1. Tạo link thiệp mời ghi tên riêng</h3>
-      <p>Điền tên khách ở bìa ngoài (dòng <b>Trân trọng kính mời: ...</b>) và tên bên trong thiệp. Nếu để trống ô bên trong, thiệp sẽ tự lấy giống tên bìa ngoài. Link tạo ra được đồng bộ lên Firebase.</p>
-      <div class="adm-grid2">
-        <div class="adm-field">
-          <label for="admOut">Tên khách ở bìa ngoài (Trân trọng kính mời:...)</label>
-          <input type="text" id="admOut" placeholder="VD: Anh Chị Minh, Bạn Ngọc Lan..." maxlength="80">
-        </div>
-        <div class="adm-field">
-          <label for="admIn">Tên khách bên trong thiệp (Để trống = giống bìa)</label>
-          <input type="text" id="admIn" placeholder="VD: Gia Đình Anh Chị Minh" maxlength="80">
-        </div>
+      <p>Điền tên khách (hiện ở dòng <b>Trân trọng kính mời: ...</b> trên thiệp). Link tạo ra được đồng bộ lên Firebase.</p>
+      <div class="adm-field">
+        <label for="admOut">Tên khách</label>
+        <input type="text" id="admOut" placeholder="VD: Anh Chị Minh, Gia Đình Bạn Ngọc Lan..." maxlength="80">
       </div>
       <div class="adm-actions">
         <button class="adm-btn solid" id="admMkLink">+ Tạo &amp; Lưu link mời</button>
@@ -117,9 +111,9 @@ tr:last-child td{border-bottom:none}
 
       <hr style="border:none;border-top:1px dashed var(--border);margin:18px 0">
       <h3>2. Tạo nhanh nhiều khách cùng lúc</h3>
-      <p>Mỗi dòng 1 khách. Nếu muốn tên bìa ngoài khác tên bên trong, gõ theo mẫu: <code>Tên bìa ngoài | Tên bên trong</code></p>
+      <p>Mỗi dòng 1 khách.</p>
       <div class="adm-field" style="margin-bottom:10px">
-        <textarea id="admBulk" rows="4" placeholder="Anh Chị Minh&#10;Bạn Ngọc Lan | Gia Đình Bạn Lan&#10;Cô Chú Tuấn"></textarea>
+        <textarea id="admBulk" rows="4" placeholder="Anh Chị Minh&#10;Bạn Ngọc Lan&#10;Cô Chú Tuấn"></textarea>
       </div>
       <div class="adm-actions">
         <button class="adm-btn solid" id="admBulkBtn">+ Tạo hàng loạt &amp; Lưu danh sách</button>
@@ -168,7 +162,6 @@ function getBaseUrl() {
 function buildInviteUrl(outName, inName) {
   const u = new URL(getBaseUrl());
   if (outName) u.searchParams.set("to", outName);
-  if (inName && inName !== outName) u.searchParams.set("in", inName);
   return u.toString();
 }
 function esc(s) {
@@ -255,7 +248,8 @@ function getMergedLinks() {
     const key = ((l.outName || "") + "|" + (l.inName || "")).toLowerCase();
     if (!map.has(key)) map.set(key, l);
   });
-  return Array.from(map.values()).map(l => ({ ...l, link: buildInviteUrl(l.outName, l.inName || l.outName) }));
+  const seen = new Set();
+  return Array.from(map.values()).map(l => ({ ...l, link: buildInviteUrl(l.outName) })).filter(l => !seen.has(l.link) && seen.add(l.link));
 }
 
 function renderDashboard() {
@@ -265,12 +259,11 @@ function renderDashboard() {
   if (!mergedLinks.length) {
     $("admLkBody").innerHTML = '<div class="adm-empty">Chưa có link khách mời nào. Hãy nhập tên khách ở khung phía trên và bấm Tạo link.</div>';
   } else {
-    let h = '<div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Tên bìa ngoài</th><th>Tên bên trong</th><th>Link mời</th><th>Thao tác</th></tr></thead><tbody>';
+    let h = '<div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Tên khách</th><th>Link mời</th><th>Thao tác</th></tr></thead><tbody>';
     mergedLinks.forEach((l, idx) => {
       h += `<tr>
         <td>${idx + 1}</td>
-        <td><b>${esc(l.outName)}</b></td>
-        <td>${esc(l.inName || l.outName)}</td>
+        <td><a href="${esc(l.link)}" target="_blank" rel="noopener" style="color:var(--ink);text-decoration:none"><b>${esc(l.outName)}</b></a></td>
         <td style="word-break:break-all;font-size:12px;max-width:260px"><a href="${esc(l.link)}" target="_blank" rel="noopener" style="color:var(--ink)">${esc(l.link)}</a></td>
         <td style="white-space:nowrap">
           <button class="adm-copy" data-copy="${esc(l.link)}">Sao chép</button>
@@ -340,7 +333,7 @@ async function createAndSaveLink(outVal, inVal) {
 }
 
 $("admMkLink").addEventListener("click", async () => {
-  const o = $("admOut").value.trim(), i = $("admIn").value.trim();
+  const o = $("admOut").value.trim(), i = "";
   if (!o && !i) { alert("Vui lòng nhập tên khách mời."); return; }
   const btn = $("admMkLink");
   btn.disabled = true; btn.textContent = "Đang tạo…";
@@ -351,7 +344,7 @@ $("admMkLink").addEventListener("click", async () => {
     $("admOpenLink").href = res.link;
     $("admLinkOut").classList.add("on");
     $("admCopyLink").onclick = () => copyToClipboard(res.link, $("admCopyLink"));
-    $("admOut").value = ""; $("admIn").value = "";
+    $("admOut").value = "";
     loadAllData();
   }
 });
@@ -362,8 +355,7 @@ $("admBulkBtn").addEventListener("click", async () => {
   const btn = $("admBulkBtn");
   btn.disabled = true; btn.textContent = "Đang tạo " + lines.length + " link…";
   for (const line of lines) {
-    const parts = line.split("|").map(s => s.trim());
-    await createAndSaveLink(parts[0], parts[1] || parts[0]);
+    await createAndSaveLink(line, line);
   }
   btn.disabled = false; btn.textContent = "+ Tạo hàng loạt & Lưu danh sách";
   $("admBulk").value = "";
@@ -373,7 +365,7 @@ $("admBulkBtn").addEventListener("click", async () => {
 $("admCopyAllLinks").addEventListener("click", () => {
   const list = getMergedLinks();
   if (!list.length) { alert("Chưa có link nào trong danh sách."); return; }
-  const txt = list.map(l => `${l.outName}${l.inName && l.inName !== l.outName ? " (" + l.inName + ")" : ""}\t${l.link}`).join("\n");
+  const txt = list.map(l => `${l.outName}\t${l.link}`).join("\n");
   copyToClipboard(txt, $("admCopyAllLinks"));
 });
 
@@ -390,8 +382,8 @@ function downloadCsv(filename, rows) {
 $("admExportLinksCsv").addEventListener("click", () => {
   const list = getMergedLinks();
   if (!list.length) { alert("Chưa có link nào để xuất."); return; }
-  const rows = [["STT", "Tên bìa ngoài", "Tên bên trong", "Link thiệp mời"]];
-  list.forEach((l, i) => rows.push([i + 1, l.outName, l.inName || l.outName, l.link]));
+  const rows = [["STT", "Tên khách", "Link thiệp mời"]];
+  list.forEach((l, i) => rows.push([i + 1, l.outName, l.link]));
   downloadCsv("danh-sach-link-moi-han-dang.csv", rows);
 });
 
