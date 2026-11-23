@@ -203,7 +203,7 @@ function tryLogin() {
     try { sessionStorage.setItem("hd_admin_ok", "1"); localStorage.setItem("hd_admin_ok", "1"); } catch(e) {}
     showApp();
   } else {
-    $("admPwErr").textContent = "Mật khẩu chưa đúng (Mặc định: handang2027)";
+    $("admPwErr").textContent = "Mật khẩu chưa đúng";
   }
 }
 $("admPwBtn").addEventListener("click", tryLogin);
