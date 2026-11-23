@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quản trị thiệp cưới — Hân &amp; Đang (27.03.2027)</title>
+<style>
+:root{--ink:#8a1a2e;--wine:#6e0f20;--gold:#c9a66b;--bg:#eee5d0;--card:#fbf6ec;--border:#dfd1b4;--soft:#5e3023;--ok:#2f7a4a;--err:#a4473a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--soft);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.5;padding:24px 16px 80px}
+.adm-wrap{max-width:960px;margin:0 auto}
+.adm-gate{max-width:380px;margin:10vh auto;background:var(--card);border:1.5px solid var(--gold);border-radius:14px;padding:32px 26px;text-align:center;box-shadow:0 14px 40px rgba(110,15,32,.14)}
+.adm-gate h2{font-size:20px;color:var(--ink);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+.adm-gate p{font-size:13.5px;opacity:.85;margin-bottom:20px}
+.adm-gate input{width:100%;font-size:16px;padding:12px 14px;border:1.5px solid var(--border);border-radius:9px;outline:none;text-align:center;background:#fff;color:var(--ink)}
+.adm-gate input:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(138,26,46,.15)}
+.adm-gate button{width:100%;margin-top:14px;font-size:14px;font-weight:600;color:#fff;background:var(--ink);border:none;border-radius:9px;padding:13px;cursor:pointer;letter-spacing:.05em;text-transform:uppercase}
+.adm-gate button:hover{background:var(--wine)}
+.adm-gate .adm-err{color:var(--err);font-size:12.5px;margin-top:12px;min-height:16px}
+.adm-back{display:inline-block;margin-top:16px;font-size:13px;color:var(--ink);text-decoration:none;font-weight:600}
+.adm-app{display:none}
+.adm-app.on{display:block}
+.adm-top{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-start;margin-bottom:18px;background:var(--card);padding:18px 20px;border-radius:12px;border:1.5px solid var(--gold)}
+.adm-app h1{font-size:21px;color:var(--ink);font-weight:700}
+.adm-sub{font-size:13px;opacity:.85;margin-top:4px}
+.adm-actions{display:flex;gap:8px;flex-wrap:wrap}
+.adm-btn{font-size:13px;padding:9px 15px;border-radius:8px;border:1.5px solid var(--ink);background:#fff;color:var(--ink);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-family:inherit;font-weight:600}
+.adm-btn:hover{background:var(--ink);color:#fff}
+.adm-btn.solid{background:var(--ink);color:#fff}
+.adm-btn.solid:hover{background:var(--wine)}
+.adm-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.adm-stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
+.adm-stat .n{font-size:24px;font-weight:700;color:var(--ink);line-height:1}
+.adm-stat .l{font-size:11px;opacity:.8;margin-top:6px;text-transform:uppercase;letter-spacing:.04em}
+.adm-stat.hl{background:var(--ink);border-color:var(--ink)}
+.adm-stat.hl .n,.adm-stat.hl .l{color:#fff;opacity:1}
+.adm-invite{background:var(--card);border:1.5px solid var(--gold);border-radius:12px;padding:20px;margin-bottom:22px}
+.adm-invite h3{font-size:16px;color:var(--ink);margin-bottom:4px}
+.adm-invite p{font-size:13px;opacity:.85;margin-bottom:14px}
+.adm-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+@media(max-width:640px){.adm-grid2{grid-template-columns:1fr}}
+.adm-field label{display:block;font-size:12px;font-weight:600;color:var(--ink);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em}
+.adm-field input,.adm-field textarea{width:100%;font-size:15px;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;outline:none;font-family:inherit;background:#fff;color:var(--ink)}
+.adm-field input:focus,.adm-field textarea:focus{border-color:var(--ink)}
+.adm-invite-out{margin-top:12px;display:none;background:#fff;border:1px dashed var(--gold);border-radius:10px;padding:14px}
+.adm-invite-out.on{display:block}
+.adm-lk{font-size:13.5px;background:#faf6ee;border:1px solid var(--border);border-radius:8px;padding:10px 12px;word-break:break-all;color:var(--ink);font-weight:600;margin-bottom:10px}
+.adm-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:22px}
+.adm-hd{padding:14px 18px;border-bottom:1px solid var(--border);font-weight:700;color:var(--ink);font-size:15px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.adm-cnt{font-size:12.5px;opacity:.8;font-weight:500;color:var(--soft)}
+table{width:100%;border-collapse:collapse;background:#fff}
+th,td{text-align:left;padding:11px 14px;font-size:13.5px;border-bottom:1px solid #efe6d6;vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink);background:#f6efe1;font-weight:700}
+tr:last-child td{border-bottom:none}
+.adm-tag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:12px;white-space:nowrap;font-weight:600}
+.adm-tag.yes{background:#e3f2e8;color:#2f7a4a}
+.adm-tag.no{background:#fbe3e6;color:#a4473a}
+.adm-tag.lk{background:#f3ead6;color:#8a1a2e}
+.adm-del{color:var(--err);background:none;border:1px solid rgba(164,71,58,.3);cursor:pointer;font-size:12px;padding:4px 8px;border-radius:6px;font-family:inherit}
+.adm-del:hover{background:#fbe3e6}
+.adm-copy{color:var(--ink);background:#fff;border:1px solid var(--ink);cursor:pointer;font-size:12px;padding:4px 10px;border-radius:6px;font-family:inherit;font-weight:600;margin-right:6px}
+.adm-copy:hover{background:var(--ink);color:#fff}
+.adm-empty,.adm-loading{padding:26px;text-align:center;opacity:.75;font-size:13.5px;background:#fff}
+.adm-muted{color:#8c6f5a;font-size:12px}
+.adm-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.adm-chip{font-size:12.5px;padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-weight:600;color:var(--soft)}
+.adm-chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="adm-wrap">
+  <div class="adm-gate" id="admGate">
+    <h2>Trang Quản Trị</h2>
+    <p>Thiệp cưới Hân &amp; Đang · 27.03.2027</p>
+    <input type="password" id="admPw" placeholder="Nhập mật khẩu quản trị" autocomplete="off">
+    <button id="admPwBtn">Đăng nhập</button>
+    <div class="adm-err" id="admPwErr"></div>
+    <a class="adm-back" href="./">← Về trang thiệp cưới</a>
+  </div>
+
+  <div class="adm-app" id="admApp">
+    <div class="adm-top">
+      <div>
+        <h1>Quản trị thiệp cưới Hân &amp; Đang</h1>
+        <div class="adm-sub">Thứ Bảy · 27.03.2027 · Nhà Hàng Diamond Place 3</div>
+      </div>
+      <div class="adm-actions">
+        <button class="adm-btn" id="admReload">↻ Tải lại</button>
+        <button class="adm-btn solid" id="admCsv">⬇ Xuất Excel / CSV</button>
+        <a class="adm-btn" href="./">Về thiệp</a>
+        <button class="adm-btn" id="admLogout">Đăng xuất</button>
+      </div>
+    </div>
+
+    <div class="adm-stats" id="admStats"></div>
+
+    <div class="adm-invite">
+      <h3>1. Tạo link thiệp mời ghi tên riêng</h3>
+      <p>Điền tên khách ở bìa ngoài (dòng <b>Trân trọng kính mời: ...</b>) và tên bên trong thiệp. Nếu để trống ô bên trong, thiệp sẽ tự lấy giống tên bìa ngoài. Link tạo ra được đồng bộ lên Firebase.</p>
+      <div class="adm-grid2">
+        <div class="adm-field">
+          <label for="admOut">Tên khách ở bìa ngoài (Trân trọng kính mời:...)</label>
+          <input type="text" id="admOut" placeholder="VD: Anh Chị Minh, Bạn Ngọc Lan..." maxlength="80">
+        </div>
+        <div class="adm-field">
+          <label for="admIn">Tên khách bên trong thiệp (Để trống = giống bìa)</label>
+          <input type="text" id="admIn" placeholder="VD: Gia Đình Anh Chị Minh" maxlength="80">
+        </div>
+      </div>
+      <div class="adm-actions">
+        <button class="adm-btn solid" id="admMkLink">+ Tạo &amp; Lưu link mời</button>
+      </div>
+      <div class="adm-invite-out" id="admLinkOut">
+        <div class="adm-lk" id="admLinkText"></div>
+        <div class="adm-actions">
+          <button class="adm-btn solid" id="admCopyLink">Sao chép link</button>
+          <a class="adm-btn" id="admOpenLink" href="#" target="_blank" rel="noopener">Mở xem thử</a>
+        </div>
+      </div>
+
+      <hr style="border:none;border-top:1px dashed var(--border);margin:18px 0">
+      <h3>2. Tạo nhanh nhiều khách cùng lúc</h3>
+      <p>Mỗi dòng 1 khách. Nếu muốn tên bìa ngoài khác tên bên trong, gõ theo mẫu: <code>Tên bìa ngoài | Tên bên trong</code></p>
+      <div class="adm-field" style="margin-bottom:10px">
+        <textarea id="admBulk" rows="4" placeholder="Anh Chị Minh&#10;Bạn Ngọc Lan | Gia Đình Bạn Lan&#10;Cô Chú Tuấn"></textarea>
+      </div>
+      <div class="adm-actions">
+        <button class="adm-btn solid" id="admBulkBtn">+ Tạo hàng loạt &amp; Lưu danh sách</button>
+        <button class="adm-btn" id="admCopyAllLinks">Sao chép toàn bộ danh sách link</button>
+      </div>
+    </div>
+
+    <div class="adm-card">
+      <div class="adm-hd">
+        <span>Danh sách Link khách mời đã tạo <span class="adm-cnt" id="admLkCnt"></span></span>
+        <button class="adm-btn" id="admExportLinksCsv" style="padding:5px 11px;font-size:12px">⬇ Xuất CSV Link mời</button>
+      </div>
+      <div id="admLkBody"><div class="adm-loading">Đang tải…</div></div>
+    </div>
+
+    <div class="adm-filters" id="admFilters">
+      <div class="adm-chip on" data-f="all">Tất cả phản hồi</div>
+      <div class="adm-chip" data-f="yes">Sẽ tham dự</div>
+      <div class="adm-chip" data-f="no">Không tham dự</div>
+    </div>
+
+    <div class="adm-card">
+      <div class="adm-hd">Xác nhận tham dự (RSVP) &amp; Lời chúc <span class="adm-cnt" id="admRsvpCnt"></span></div>
+      <div id="admRsvpBody"><div class="adm-loading">Đang tải…</div></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDKojhw5-SFWukGSN_oSjw5vxJngrfIogo",
+  authDomain: "vo-iu-dino-848d2.firebaseapp.com",
+  projectId: "vo-iu-dino-848d2",
+  storageBucket: "vo-iu-dino-848d2.firebasestorage.app",
+  messagingSenderId: "879023470388",
+  appId: "1:879023470388:web:ecc9128f6f280b26249761"
+};
+const COL = "rsvp_handang";
+/* ==== MẬT KHẨU ADMIN ĐẶT TRONG CODE ==== */
+const ADMIN_PASSWORDS = ["handang2027", "handang2703", "handang", "dino2026", "123456"];
+/* ======================================= */
+
+const app = initializeApp(FIREBASE_CONFIG);
+const db = getFirestore(app);
+const $ = id => document.getElementById(id);
+
+let ALL = [], LINKS = [], VIEWS = [], RSVPS = [], filt = "all";
+const LOCAL_KEY = "hd_saved_links_v1";
+
+function getBaseUrl() {
+  return location.origin + location.pathname.replace(/\/admin\.html.*$/i, "/");
+}
+function buildInviteUrl(outName, inName) {
+  const u = new URL(getBaseUrl());
+  if (outName) u.searchParams.set("to", outName);
+  if (inName && inName !== outName) u.searchParams.set("in", inName);
+  return u.toString();
+}
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function fmtDate(ts) {
+  if (!ts) return "";
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleString("vi-VN", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" });
+}
+function loadLocalLinks() {
+  try { return JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]"); } catch(e) { return []; }
+}
+function saveLocalLinks(arr) {
+  try { localStorage.setItem(LOCAL_KEY, JSON.stringify(arr)); } catch(e) {}
+}
+
+function checkAuth() {
+  try {
+    if (sessionStorage.getItem("hd_admin_ok") === "1" || localStorage.getItem("hd_admin_ok") === "1") {
+      showApp();
+      return;
+    }
+  } catch(e) {}
+  $("admGate").style.display = "block";
+  $("admApp").classList.remove("on");
+}
+
+function tryLogin() {
+  const pw = ($("admPw").value || "").trim();
+  if (ADMIN_PASSWORDS.includes(pw)) {
+    try { sessionStorage.setItem("hd_admin_ok", "1"); localStorage.setItem("hd_admin_ok", "1"); } catch(e) {}
+    showApp();
+  } else {
+    $("admPwErr").textContent = "Mật khẩu chưa đúng (Mặc định: handang2027)";
+  }
+}
+$("admPwBtn").addEventListener("click", tryLogin);
+$("admPw").addEventListener("keydown", e => { if (e.key === "Enter") tryLogin(); });
+$("admLogout").addEventListener("click", () => {
+  try { sessionStorage.removeItem("hd_admin_ok"); localStorage.removeItem("hd_admin_ok"); } catch(e) {}
+  location.reload();
+});
+
+function showApp() {
+  $("admGate").style.display = "none";
+  $("admApp").classList.add("on");
+  loadAllData();
+}
+
+async function loadAllData() {
+  $("admRsvpBody").innerHTML = '<div class="adm-loading">Đang tải dữ liệu từ Firebase…</div>';
+  $("admLkBody").innerHTML = '<div class="adm-loading">Đang tải danh sách link…</div>';
+  try {
+    const snap = await getDocs(query(collection(db, COL), orderBy("createdAt", "desc")));
+    ALL = []; LINKS = []; VIEWS = []; RSVPS = [];
+    snap.forEach(d => {
+      const v = { id: d.id, ...d.data() };
+      ALL.push(v);
+      const nt = String(v.note || "");
+      if (v.type === "link" || nt.startsWith("#link ")) {
+        LINKS.push({
+          id: v.id,
+          outName: v.outName || v.invitedAs || v.guestName || "",
+          inName: v.inName || v.outName || v.invitedAs || v.guestName || "",
+          link: v.link || nt.replace(/^#link\s+/, ""),
+          createdAt: v.createdAt
+        });
+      } else if (v.type === "view" || nt === "#view") {
+        VIEWS.push(v);
+      } else {
+        RSVPS.push(v);
+      }
+    });
+  } catch (err) {
+    console.warn("Firebase load warning:", err);
+    RSVPS = [];
+  }
+  renderDashboard();
+}
+$("admReload").addEventListener("click", loadAllData);
+
+function getMergedLinks() {
+  const local = loadLocalLinks();
+  const map = new Map();
+  LINKS.forEach(l => {
+    const key = (l.outName + "|" + l.inName).toLowerCase();
+    if (!map.has(key)) map.set(key, l);
+  });
+  local.forEach(l => {
+    const key = ((l.outName || "") + "|" + (l.inName || "")).toLowerCase();
+    if (!map.has(key)) map.set(key, l);
+  });
+  return Array.from(map.values());
+}
+
+function isYes(x) {
+  const a = String(x.attend || "").toLowerCase();
+  return a === "yes" || a === "co" || a.includes("có") || a.includes("sẽ");
+}
+
+function renderDashboard() {
+  const mergedLinks = getMergedLinks();
+  const going = RSVPS.filter(isYes);
+  const totalGuests = going.reduce((s, x) => s + (parseInt(x.numGuest || x.count, 10) || 1), 0);
+
+  const statHtml = (v, l, hl) => `<div class="adm-stat${hl ? " hl" : ""}"><div class="n">${v}</div><div class="l">${l}</div></div>`;
+  $("admStats").innerHTML =
+    statHtml(mergedLinks.length, "Link khách đã tạo", true) +
+    statHtml(VIEWS.length, "Lượt mở thiệp") +
+    statHtml(RSVPS.length, "Lượt phản hồi RSVP") +
+    statHtml(going.length, "Xác nhận tham dự") +
+    statHtml(totalGuests, "Tổng khách dự kiến");
+
+  // Render Links Table
+  $("admLkCnt").textContent = `(${mergedLinks.length} khách)`;
+  if (!mergedLinks.length) {
+    $("admLkBody").innerHTML = '<div class="adm-empty">Chưa có link khách mời nào. Hãy nhập tên khách ở khung phía trên và bấm Tạo link.</div>';
+  } else {
+    let h = '<div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Tên bìa ngoài</th><th>Tên bên trong</th><th>Trạng thái</th><th>Link mời</th><th>Thao tác</th></tr></thead><tbody>';
+    mergedLinks.forEach((l, idx) => {
+      const normOut = (l.outName || "").trim().toLowerCase();
+      const vwCount = VIEWS.filter(v => String(v.invitedAs || v.guestName || "").trim().toLowerCase() === normOut).length;
+      const rsvpMatch = RSVPS.find(r => String(r.invitedAs || r.guestName || "").trim().toLowerCase() === normOut);
+      const statusTxt = rsvpMatch
+        ? `<span class="adm-tag ${isYes(rsvpMatch) ? "yes" : "no"}">${isYes(rsvpMatch) ? "Sẽ đến" : "Không đến"}</span>`
+        : vwCount > 0
+          ? `<span class="adm-tag lk">Đã mở (${vwCount} lần)</span>`
+          : `<span class="adm-muted">Chưa mở</span>`;
+      h += `<tr>
+        <td>${idx + 1}</td>
+        <td><b>${esc(l.outName)}</b></td>
+        <td>${esc(l.inName || l.outName)}</td>
+        <td>${statusTxt}</td>
+        <td style="word-break:break-all;font-size:12px;max-width:260px"><a href="${esc(l.link)}" target="_blank" rel="noopener" style="color:var(--ink)">${esc(l.link)}</a></td>
+        <td style="white-space:nowrap">
+          <button class="adm-copy" data-copy="${esc(l.link)}">Sao chép</button>
+          <button class="adm-del" data-del-link="${esc(l.id || "")}" data-del-key="${esc((l.outName + "|" + l.inName).toLowerCase())}">Xoá</button>
+        </td>
+      </tr>`;
+    });
+    h += "</tbody></table></div>";
+    $("admLkBody").innerHTML = h;
+    $("admLkBody").querySelectorAll("[data-copy]").forEach(b => {
+      b.addEventListener("click", () => copyToClipboard(b.getAttribute("data-copy"), b));
+    });
+    $("admLkBody").querySelectorAll("[data-del-link]").forEach(b => {
+      b.addEventListener("click", async () => {
+        if (!confirm("Xoá link mời này khỏi danh sách?")) return;
+        const id = b.getAttribute("data-del-link");
+        const key = b.getAttribute("data-del-key");
+        saveLocalLinks(loadLocalLinks().filter(x => ((x.outName || "") + "|" + (x.inName || "")).toLowerCase() !== key));
+        if (id) {
+          try { await deleteDoc(doc(db, COL, id)); } catch(e) {}
+        }
+        loadAllData();
+      });
+    });
+  }
+
+  // Render RSVP Table
+  const filtered = RSVPS.filter(x => {
+    if (filt === "yes") return isYes(x);
+    if (filt === "no") return !isYes(x);
+    return true;
+  });
+  $("admRsvpCnt").textContent = `(${filtered.length} phản hồi)`;
+  if (!filtered.length) {
+    $("admRsvpBody").innerHTML = '<div class="adm-empty">Chưa có phản hồi RSVP / lời chúc nào.</div>';
+  } else {
+    let h2 = '<div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Khách phản hồi</th><th>Tham dự</th><th>Số khách</th><th>Lời chúc</th><th>Thời gian</th><th></th></tr></thead><tbody>';
+    filtered.forEach((x, idx) => {
+      const name = x.guestName || x.name || "Khách mời";
+      const inv = x.invitedAs || "";
+      const yes = isYes(x);
+      const cnt = yes ? (parseInt(x.numGuest || x.count, 10) || 1) : 0;
+      h2 += `<tr>
+        <td>${idx + 1}</td>
+        <td><b>${esc(name)}</b>${inv && inv !== name ? `<br><span class="adm-muted">Link mời: ${esc(inv)}</span>` : ""}</td>
+        <td><span class="adm-tag ${yes ? "yes" : "no"}">${yes ? "Có tham dự" : "Không tham dự"}</span></td>
+        <td>${yes ? cnt : "–"}</td>
+        <td style="max-width:300px;white-space:pre-wrap">${esc(x.wish || "")}</td>
+        <td class="adm-muted">${esc(fmtDate(x.createdAt))}</td>
+        <td><button class="adm-del" data-del-rsvp="${esc(x.id)}">Xoá</button></td>
+      </tr>`;
+    });
+    h2 += "</tbody></table></div>";
+    $("admRsvpBody").innerHTML = h2;
+    $("admRsvpBody").querySelectorAll("[data-del-rsvp]").forEach(b => {
+      b.addEventListener("click", async () => {
+        if (!confirm("Xoá phản hồi này vĩnh viễn?")) return;
+        try { await deleteDoc(doc(db, COL, b.getAttribute("data-del-rsvp"))); loadAllData(); }
+        catch(e) { alert("Không xoá được: " + e.message); }
+      });
+    });
+  }
+}
+
+$("admFilters").addEventListener("click", e => {
+  const c = e.target.closest(".adm-chip");
+  if (!c) return;
+  document.querySelectorAll(".adm-chip").forEach(x => x.classList.remove("on"));
+  c.classList.add("on");
+  filt = c.getAttribute("data-f");
+  renderDashboard();
+});
+
+function copyToClipboard(text, btn) {
+  const old = btn ? btn.textContent : "";
+  const done = () => {
+    if (btn) {
+      btn.textContent = "Đã chép ✓";
+      setTimeout(() => { btn.textContent = old; }, 1500);
+    }
+  };
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(done).catch(() => prompt("Sao chép:", text));
+  } else {
+    prompt("Sao chép:", text);
+  }
+}
+
+async function createAndSaveLink(outVal, inVal) {
+  const finalOut = (outVal || inVal || "").replace(/\s+/g, " ").trim();
+  const finalIn = (inVal || outVal || "").replace(/\s+/g, " ").trim();
+  if (!finalOut) return null;
+  const link = buildInviteUrl(finalOut, finalIn);
+  const item = { outName: finalOut, inName: finalIn, link, createdAt: Date.now() };
+  const local = loadLocalLinks().filter(x => ((x.outName || "") + "|" + (x.inName || "")).toLowerCase() !== (finalOut + "|" + finalIn).toLowerCase());
+  local.unshift(item);
+  saveLocalLinks(local);
+  try {
+    await addDoc(collection(db, COL), {
+      type: "link",
+      guestName: finalOut,
+      invitedAs: finalOut,
+      outName: finalOut,
+      inName: finalIn,
+      link: link,
+      note: "#link " + link,
+      createdAt: serverTimestamp()
+    });
+  } catch (e) {
+    console.warn("Firestore save link skipped/blocked:", e);
+  }
+  return item;
+}
+
+$("admMkLink").addEventListener("click", async () => {
+  const o = $("admOut").value.trim(), i = $("admIn").value.trim();
+  if (!o && !i) { alert("Vui lòng nhập tên khách mời."); return; }
+  const btn = $("admMkLink");
+  btn.disabled = true; btn.textContent = "Đang tạo…";
+  const res = await createAndSaveLink(o, i);
+  btn.disabled = false; btn.textContent = "+ Tạo & Lưu link mời";
+  if (res) {
+    $("admLinkText").textContent = res.link;
+    $("admOpenLink").href = res.link;
+    $("admLinkOut").classList.add("on");
+    $("admCopyLink").onclick = () => copyToClipboard(res.link, $("admCopyLink"));
+    $("admOut").value = ""; $("admIn").value = "";
+    loadAllData();
+  }
+});
+
+$("admBulkBtn").addEventListener("click", async () => {
+  const lines = $("admBulk").value.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+  if (!lines.length) { alert("Vui lòng nhập danh sách tên khách (mỗi dòng 1 khách)."); return; }
+  const btn = $("admBulkBtn");
+  btn.disabled = true; btn.textContent = "Đang tạo " + lines.length + " link…";
+  for (const line of lines) {
+    const parts = line.split("|").map(s => s.trim());
+    await createAndSaveLink(parts[0], parts[1] || parts[0]);
+  }
+  btn.disabled = false; btn.textContent = "+ Tạo hàng loạt & Lưu danh sách";
+  $("admBulk").value = "";
+  loadAllData();
+});
+
+$("admCopyAllLinks").addEventListener("click", () => {
+  const list = getMergedLinks();
+  if (!list.length) { alert("Chưa có link nào trong danh sách."); return; }
+  const txt = list.map(l => `${l.outName}${l.inName && l.inName !== l.outName ? " (" + l.inName + ")" : ""}\t${l.link}`).join("\n");
+  copyToClipboard(txt, $("admCopyAllLinks"));
+});
+
+function downloadCsv(filename, rows) {
+  const csv = "\ufeff" + rows.map(r => r.map(c => '"' + String(c == null ? "" : c).replace(/"/g, '""') + '"').join(",")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+$("admExportLinksCsv").addEventListener("click", () => {
+  const list = getMergedLinks();
+  if (!list.length) { alert("Chưa có link nào để xuất."); return; }
+  const rows = [["STT", "Tên bìa ngoài", "Tên bên trong", "Link thiệp mời"]];
+  list.forEach((l, i) => rows.push([i + 1, l.outName, l.inName || l.outName, l.link]));
+  downloadCsv("danh-sach-link-moi-han-dang.csv", rows);
+});
+
+$("admCsv").addEventListener("click", () => {
+  const list = getMergedLinks();
+  const rows = [["Loại", "Tên khách / Bìa ngoài", "Tên bên trong / Link mời", "Tham dự", "Số khách", "Lời chúc / Link", "Thời gian"]];
+  RSVPS.forEach(r => {
+    const yes = isYes(r);
+    rows.push(["RSVP", r.guestName || r.name || "", r.invitedAs || "", yes ? "Có tham dự" : "Không tham dự", yes ? (r.numGuest || r.count || 1) : 0, r.wish || "", fmtDate(r.createdAt)]);
+  });
+  list.forEach(l => {
+    rows.push(["Link mời", l.outName, l.inName || l.outName, "", "", l.link, fmtDate(l.createdAt)]);
+  });
+  downloadCsv("quan-tri-thiep-cuoi-han-dang.csv", rows);
+});
+
+checkAuth();
+</script>
+</body>
+</html>

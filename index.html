@@ -237,7 +237,7 @@ body.locked #cover{opacity:0}
 <div id="linkgen" aria-label="Tạo thiệp ghi tên khách mời">
   <div class="lg-box">
     <h2>Tạo Thiệp Ghi Tên Riêng</h2>
-    <p class="sub">Hân &amp; Đang • 27.03.2027</p>
+    <p class="sub">Hân &amp; Đang • 27.03.2027 · <a href="/admin.html" style="color:var(--ink);text-decoration:underline">Quản trị &amp; Xuất CSV</a></p>
     <div class="lg-field">
       <label for="lg-out">1. Tên khách ở bìa ngoài (Trân trọng kính mời:...)</label>
       <input id="lg-out" type="text" placeholder="VD: Anh Chị Minh, Cô Chú Tuấn, Bạn Lan...">
@@ -444,7 +444,8 @@ body.locked #cover{opacity:0}
       bCopy.addEventListener('click',function(){
         var t=bUrl.textContent;
         if(navigator.clipboard)navigator.clipboard.writeText(t);
-        bCopy.textContent='Đã sao chép!';
+        if(window.__hdSaveLink)window.__hdSaveLink(iOut.value.trim()||iIn.value.trim(),iIn.value.trim()||iOut.value.trim(),t);
+        bCopy.textContent='Đã sao chép & lưu!';
         setTimeout(function(){bCopy.textContent='Sao chép link';},1600);
       });
       iBulk.addEventListener('input',function(){
@@ -529,6 +530,52 @@ o.addEventListener('click',go);o.addEventListener('keydown',function(e){if(e.key
 (function(){var a=document.getElementById('bgm'),b=document.getElementById('mus');
 b.addEventListener('click',function(){if(a.paused){a.play();b.classList.add('on')}else{a.pause();b.classList.remove('on')}});
 document.addEventListener('visibilitychange',function(){if(document.hidden){a.pause()}else if(b.classList.contains('on')){a.play().catch(function(){})}});})();
+</script>
+<script type="module">
+try {
+  const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+  const { getFirestore, collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+  const app = initializeApp({
+    apiKey: "AIzaSyDKojhw5-SFWukGSN_oSjw5vxJngrfIogo",
+    authDomain: "vo-iu-dino-848d2.firebaseapp.com",
+    projectId: "vo-iu-dino-848d2",
+    storageBucket: "vo-iu-dino-848d2.firebasestorage.app",
+    messagingSenderId: "879023470388",
+    appId: "1:879023470388:web:ecc9128f6f280b26249761"
+  });
+  const db = getFirestore(app);
+  const COL = "rsvp_handang";
+  window.__hdSaveLink = async function(outName, inName, link) {
+    try {
+      await addDoc(collection(db, COL), {
+        type: "link",
+        guestName: outName,
+        invitedAs: outName,
+        outName: outName,
+        inName: inName || outName,
+        link: link,
+        note: "#link " + link,
+        createdAt: serverTimestamp()
+      });
+    } catch(e) {}
+  };
+  const q = new URLSearchParams(location.search);
+  const guest = (q.get("to") || q.get("khach") || q.get("name") || q.get("out") || "").trim();
+  const isAdm = q.has("taolink") || q.has("admin") || location.hash === "#admin" || location.hash === "#taolink";
+  if (guest && !isAdm) {
+    const vKey = "hd_view_" + guest.toLowerCase();
+    if (!sessionStorage.getItem(vKey)) {
+      sessionStorage.setItem(vKey, "1");
+      await addDoc(collection(db, COL), {
+        type: "view",
+        guestName: guest.slice(0, 60),
+        invitedAs: guest.slice(0, 80),
+        note: "#view",
+        createdAt: serverTimestamp()
+      });
+    }
+  }
+} catch(e) {}
 </script>
 </body>
 </html>
