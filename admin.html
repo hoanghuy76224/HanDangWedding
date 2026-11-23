@@ -163,7 +163,7 @@ let LINKS = [];
 const LOCAL_KEY = "hd_saved_links_v1";
 
 function getBaseUrl() {
-  return location.origin + location.pathname.replace(/\/admin\.html.*$/i, "/");
+  return location.origin + location.pathname.replace(/\/admin(\.html)?\/?$/i, "/");
 }
 function buildInviteUrl(outName, inName) {
   const u = new URL(getBaseUrl());
@@ -255,7 +255,7 @@ function getMergedLinks() {
     const key = ((l.outName || "") + "|" + (l.inName || "")).toLowerCase();
     if (!map.has(key)) map.set(key, l);
   });
-  return Array.from(map.values());
+  return Array.from(map.values()).map(l => ({ ...l, link: buildInviteUrl(l.outName, l.inName || l.outName) }));
 }
 
 function renderDashboard() {
